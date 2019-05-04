@@ -1,5 +1,5 @@
 \section{The TGCT Tool}
-TGCT is a tool for crowdsourced testing of Android application. As shown in Figure\ref{fig:arch}, TGCT works in the following process: (1) Building the GUI model, which describes the transaction between different windows corresponding to different events. (2) According to the test tasks which composed of uncommon window transactions(test cases) and uncovered window transactions, TGCT predicts the preference of crowd workers through collaborative filtering algorithm. (3) Starting from the workers' current window, TGCT calculates the path to the target test task, by which the workers complete the path transaction to reproduces the exceptions or triggers new exceptions.
+TGCT is a tool for crowdsourced testing of Android application. As shown in Figure\ref{fig:arch}, TGCT works in the following process: (1) Building the GUI model, which describes the transition between different windows corresponding to different events. (2) According to the test tasks which composed of uncommon window transitions(test cases) and uncovered window transitions, TGCT predicts the test preference of crowd workers through collaborative filtering algorithm. (3) Starting from the workers' current window, TGCT calculates the path to the target test task, by which the workers complete the path transition to reproduces the exceptions or triggers new exceptions.
 \begin{figure}[htbp]
 \centering
 \centerline{\includegraphics[width=\columnwidth,height=4cm]{fig/2.png}}
@@ -8,37 +8,38 @@ TGCT is a tool for crowdsourced testing of Android application. As shown in Figu
 \end{figure}
 
 \subsection{Construction of GUI Model}
-Figure\ref{fig:flow_chart} shows the process of GUI model construction. Task requesters upload Android application APK on the crowdsourcing platform. TGCT parses APK by automated testing and static source code respectively, and generates a GUI model. The model includes three parts:
-(1) common window transactions that do not trigger exceptions, (2) uncommon window transactions that trigger exceptions, (3) uncovered window transaction supplemented by static analysis.
-\begin{figure}[htbp]
-\centering
-\centerline{\includegraphics[width=\columnwidth,height=4cm]{fig/3.png}}
-\caption{The process of GUI model construction.}
-\label{fig:flow_chart}
-\end{figure}
+%Figure\ref{fig:flow_chart} shows the process of GUI model construction. 
+Task requesters upload Android application APK on the crowdsourcing platform. TGCT parses APK by automated testing and static source code anlysis respectively, and generates a GUI model. The model includes three parts:
+(1) common window transitions that do not trigger exceptions, (2) uncommon window transitions(test cases) that trigger exceptions, (3) uncovered window transition supplemented by static analysis.
+%\begin{figure}[htbp]
+%\centering
+%\centerline{\includegraphics[width=\columnwidth,height=4cm]{fig/3.png}}
+%\caption{The process of GUI model construction.}
+%\label{fig:flow_chart}
+%\end{figure}
 
-%common window transaction%
-\subsubsection{Common Window Transaction}
-There are two main steps:
-(1) For common window transaction, TGCT chooses the automated testing framework of MoocTest platform\footnote{www.mooctest.net}. This framework traverses all components in Android by depth-first algorithm, then generates a sequence of test events, and saves a screenshot when the test event occurs. 
-
-The automated testing framework records the sequence of events in the format of Figure\ref{fig:foramt}. The "time" field represents the time when the event occurred, and the "activityBeforeAction" field and the "activityAfterAction" field record the windows before and after the event, respectively. The "type" field represents the event type, and the "message" field outputs event information in detail. For different events, automated tests record event details in different formats.
+%common window transition%
+\subsubsection{Common Window Transition}
+For common window transition, TGCT chooses the automated testing framework of MoocTest platform\footnote{www.mooctest.net}. This framework traverses all components in Android by depth-first algorithm, then generates a sequence of test events, and saves a screenshot when the test event occurs. The automated testing framework records the sequence of events in the format of Figure\ref{fig:foramt}. The "time" field represents the time when the event occurred, and the "activityBeforeAction" field and the "activityAfterAction" field record the windows before and after the event, respectively. The "type" field represents the event type, and the "message" field represents event information in detail.
 \begin{figure}[htbp]
 \centering
 \centerline{\includegraphics[width=\columnwidth,height=2cm]{fig/4.png}}
 \caption{The format of event sequence.}
 \label{fig:foramt}
 \end{figure}
-(2) Traverse the sequence of test events, taking the window before the event triggered as the starting node, the window after the event triggered as the termination node, connect a directed edge, finally it forms a directed graph.
-%Traversing event sequences, TGCT stores GUI state changes recorded by automated tests in a directed graph structure: G = < N, E >, where N represents the set of points, which represents the set of Android application layer windows, and E represents the edge set, which represents the window transaction set triggered by the event.
-The key storage fields of the edge are as follows: "source\_node" and "target\_node" store the names of start window and target window respectively, "event\_type" records event type, "event\_handlers" correspond to "message" in automated test events, "image\_URL" corresponds events to screenshots in the test process, and "message" field records events for triggering abnormal events. "create\_time" to save the time when the event occurred. TGCT sets the "data\_type" field to distinguish the window transaction type in GUI model. Among them, 1 represents the common window transaction, 2 represents the test case triggering the exception, and 0 represents the uncovered window transaction.
+
+Taking the "activityBeforeAction" as the starting node, the "activityAfterAction" as the termination node, TGCT traverse the sequence of test events and connect a directed edge between starting node and termination node. Finally, these directed edges form a directed graph.
+%By traversing the sequence of test events, TGCT take the window before the event triggered as the starting node("activityBeforeAction"), the window after the event triggered as the termination node("activityAfterAction"), connect a directed edge. Finally these edges form a directed graph.
+%Traversing event sequences, TGCT stores GUI state changes recorded by automated tests in a directed graph structure: G = < N, E >, where N represents the set of points, which represents the set of Android application layer windows, and E represents the edge set, which represents the window transition set triggered by the event.
+The key storage fields of the edge are as follows: "source\_node" and "target\_node" store the names of starting window and target window, "event\_type" records event type, "event\_handlers" corresponds to "message" in automated test events, "image\_URL" represents the screenshots in the test process, and "message" field represents exception message that test event triggers, "create\_time" save the timestamp when the event occurred. TGCT sets the "data\_type" field to distinguish the window transition type in GUI model. Among them, 1 represents the common window transition, 2 represents the uncommon window transition(test cases) triggering the exception, and 0 represents the uncovered window transition.
 
 % The automated test framework saves a screenshot of the current running state of the application，and names it with the current timestamp. The TGCT mechanism combines the coordinates of event-related components to mark the window components, assists in describing events, and provides clear test guidance. The processing of the screenshot information are as follows: (1) \textbf{Correspond screenshots to events:} Read the screenshots list P. For any screenshots $p_{i}$, whose file name is $n_{i}$, an edge $e_{i}$ can be found in the application edge set E. It satisfies the corresponding timestamp $t_{i}$, which is greater than $n_{i}$ and closest to $n_{i}$. The mapping relationship between $p_{i}$ and $e_{i}$ is established.
 % (2) \textbf{Associate user interaction events and corresponding screenshots:} an Android application contains multiple components, so how does TGCT describe the test event-related components to crowdsourced workers? On the one hand, for the user interaction test event, the TGCT draws the component in the screenshot according to the component coordinates recorded in the corresponding test event, then TGCT feeds it back to the worker. On the other hand, for the system test event, the TGCT does not modify the original screenshot, but just saves it.
 
-\subsubsection{Uncommon Window Transaction}
+\subsubsection{Uncommon Window Transition}
 The TGCT collects application runtime exceptions, including RuntimeExceptions and ANR exceptions, and generates the sequence of exception log. The format of each log is as shown in Figure\ref{fig:foramt2}.
-Traversing the sequence, TGCT analyzes each log and find the corresponding edge according to timestamp(one edge corresponds to one window transaction) and modify its "data\_type" and "message".
+
+Traversing the sequence of exception log, TGCT analyzes each log and find the corresponding edge according to timestamp(one edge corresponds to one window transition) and modify its "data\_type" field to 2 and save the "LOG" information to "message" field.
 
 %The automated testing framework exports program run logs, each of which is formatted as shown in Figure\ref{fig:foramt2}. When the application starts, the Android system opens a new thread of execution for it, which generates other sub-threads and runs other windows of the application in the sub-threads. Threads are distinguished by thread ID as a unique identifier. In program log, thread ID is used as identifier to record resource loading process and program running status in different threads. The "type" field records the debugging information of the program log, the "LOG" field receives the information from the program's specific code, and the "time" field stores the timestamp generated by the exception. 
 \begin{figure}[htbp]
@@ -48,10 +49,10 @@ Traversing the sequence, TGCT analyzes each log and find the corresponding edge 
 \label{fig:foramt2}
 \end{figure}
 
-%For any log $l_{i}$ in the exception log set L, its corresponding time is $t_{i}$. In the edge set E, there must be an edge $e_{i}$, whose occurrence time is less than $t_{i}$ and closest to $t_{i}$. The TGCT mechanism searches for the corresponding event information for each exception log, modifies the window transaction information, sets the "data\_type" field to 2, and outputs the "LOG" information in the log to the "message" field.
+%For any log $l_{i}$ in the exception log set L, its corresponding time is $t_{i}$. In the edge set E, there must be an edge $e_{i}$, whose occurrence time is less than $t_{i}$ and closest to $t_{i}$. The TGCT mechanism searches for the corresponding event information for each exception log, modifies the window transition information, sets the "data\_type" field to 2, and outputs the "LOG" information in the log to the "message" field.
 
-\subsubsection{Uncovered Window Transaction}
-Based on the work of Yang, Shengqiang et al.\cite{yang2018static} developed a tool GATOR, which generates window translation graph (WTG). The callback information triggering window changes is recorded in the edge of the graph, and the information contained in each edge is shown in Figure\ref{fig:info}. The "source\_node" field and the "target\_node" field store the name of the starting node and the target node respectively. The "event\_handlers" field stores the window where the callback function occurs and the definition of the callback function. GATOR establishes the mapping between callback function and GUI interaction. By analyzing the name and definition of callback function, the event information corresponding to callback function is stored in the "type" field.
+\subsubsection{Uncovered Window Transition}
+Based on the work of Yang, Shengqiang et al.\cite{yang2018static} developed a tool GATOR, which generates window transition graph (WTG). The callback information of window transition is recorded in the edge of the graph, and the information contained in each edge is shown in Figure\ref{fig:info}. The "source\_node" field and the "target\_node" field store the name of the starting node and the target node. The "event\_handlers" field stores the window name where the callback function occurs and the definition of the callback function. GATOR establishes the mapping between callback function and GUI model. %By analyzing the name and definition of callback function, the event information corresponding to callback function is stored in the "type" field.
 \begin{figure}[htbp]
 \centering
 \centerline{\includegraphics[width=\columnwidth,height=2cm]{fig/6.png}}
@@ -59,32 +60,32 @@ Based on the work of Yang, Shengqiang et al.\cite{yang2018static} developed a to
 \label{fig:info}
 \end{figure}
 
-The TGCT mechanism traverses the edges of WTG, retrieves the event information of automated testing, and determines whether the window transaction has been covered in the process of automated testing. If the window transaction is not included, the TGCT mechanism stores the edge information from WTG in the format of common window transaction, and sets the "data\_type" field to 1. 
-
-
+The TGCT traverses the edges of WTG, retrieves the event information of automated testing, and determines whether the window transition has been covered by automated testing. If the window transition is not included, the TGCT  stores the edge information from WTG in the format of common window transition, and sets the "data\_type" field to 1. 
 
 \subsection{Test Task Recommendation System}
-The TGCT mechanism uses an item-based collaborative filtering algorithm to implement a test task recommendation system for test cases and uncovered windows. Cold start is a problem that must be faced by the collaborative filtering algorithm. Combining with GUI model in section 2.1, the mechanism of TGCT analyses the attributes of different window transactions and solves the problem of cold start of recommendation system.  Figure\ref{fig:recomd} shows the process of the entire recommendation system. The design of the recommendation system will be described in detail in sections 2.2.1, 2.2.2 and 2.2.3 below.
+The TGCT uses an item-based collaborative filtering algorithm to implement a test task recommendation system for test cases and uncovered windows. Cold start is a problem that must be faced in the collaborative filtering algorithm. Combining with GUI model in section 2.1, TGCT analyses the attributes of different window transitions to solves the cold start problem. Figure\ref{fig:recomd} shows the process of the entire recommendation system. The design of the recommendation system will be described in detail in sections 2.2.1, 2.2.2 and 2.2.3 below.
 \begin{figure}[htbp]
 \centering
 \centerline{\includegraphics[width=7cm,height=6cm]{fig/7.png}}
 \caption{The process of the recommendation system.}
 \label{fig:recomd}
 \end{figure}
-
 \subsubsection{Cold Start}
-In recommendation system for uncovered window transaction, because uncovered window transaction is difficult to find out the representative exception attributes, the TGCT mechanism adopts random strategy to solve the cold start problem. 
+In recommendation system for uncovered window transition, because uncovered window transition is difficult to find out the representative exception attributes, the TGCT mechanism adopts random strategy to solve the cold start problem. 
 
-%This paper mainly solve the cold-start problem of recommendation system for uncommon window transactions from two aspects: cold-start for users and cold-start for items. The steps are as follows:(1)\textbf{Classification of exceptions:} Collect and understand the exception information in GUI model. TGCT mechanism classifies common exceptions in Android applications and manually evaluates the severity of exceptions. The higher the score, the more serious it is.(2)\textbf{Exception selection:} According to the exception distribution of the current application, the TGCT mechanism randomly selects exceptions from each type to form test cases and recommend them to each new crowd worker.
+%This paper mainly solve the cold-start problem of recommendation system for uncommon window transitions from two aspects: cold-start for users and cold-start for items. The steps are as follows:(1)\textbf{Classification of exceptions:} Collect and understand the exception information in GUI model. TGCT mechanism classifies common exceptions in Android applications and manually evaluates the severity of exceptions. The higher the score, the more serious it is.(2)\textbf{Exception selection:} According to the exception distribution of the current application, the TGCT mechanism randomly selects exceptions from each type to form test cases and recommend them to each new crowd worker.
 
-So far, TGCT elaborates the solution of cold start problem for users. Based on this, the TGCT studies the solution of cold start for new items. The TGCT mechanism calculates the similarity between different test cases based on the cosine similarity by analyzing the properties of the anomaly, and realizes the coarse-grained personalized recommendation.
+%So far, TGCT elaborates the solution of cold start problem for users. Based on this, 
+Besides, the TGCT studies the solution of cold start for new items. TGCT calculates the similarity between different test cases based on the cosine similarity by analyzing the properties of the anomaly, and realizes the coarse-grained personalized recommendation.
 
-Based on the GUI model constructed in 2.1, TGCT describes test cases by three attributes. The test case $t_{i}$ is abstracted as a vector:
+Based on the GUI model constructed in 2.1, TGCT describes test cases by three attributes. The test case $t_{i}$ converts to a vector:
 \begin{equation}
 t_{i} = {(e_{1}, w_{1}),(e_{2}, w_{2}),(e_{3}, w_{3})}
 \end{equation}
 
-$e_{1}$ represents the exception type, and its corresponding weight $w_{1}$ is based on the severity of the exception defined in manual. $e_{2}$ represents the start window of an exception, and its corresponding weight $w_{2}$ represents the page level of the window. For any window $w_{i}$, the corresponding page level $l_{i}$ is equal to the shortest path from MainActivity to $w_{i}$ plus 1. From the point of view of improving test coverage, the deeper the nesting of windows, the more difficult it is to detect abnormalities, and the higher the weight it gives, the more it is recommended to crowd workers. $e_{3}$ represents the event type, and the TGCT mechanism assigns different weights to different event types.
+$e_{1}$ represents the exception type, and the weight $w_{1}$ depends on the severity of the exception defined manually. $e_{2}$ represents the start window of an exception, and $w_{2}$ represents the page level of the window. For any window $w_{i}$, the corresponding page level $l_{i}$ is equal to the shortest path from MainActivity to $w_{i}$ plus 1.
+%From the point of view of improving test coverage, the deeper the nesting of windows, the more difficult it is to detect abnormalities, and the higher the weight it gives, the more it is recommended to crowd workers.
+$e_{3}$ represents the event type, and the TGCT mechanism assigns different weights to different event types.
 
 Test cases are represented by vectors, and the similarity $w_{ij}$ between test case A and test case B is calculated by cosine similarity in TGCT mechanism, where $A_{i}$ represents an attribute vector of test case A:
 \begin{equation}
@@ -92,31 +93,30 @@ Similarity_{AB} = cos(\theta) = \frac{AB}{||A||||B||}
 \end{equation}
 
 \subsubsection{Item-Based Collaborative Filtering Recommendation}
-The first five minutes of crowdsourcing testing is the cold start stage of the recommendation system. After collecting preference data of crowd worker, the recommendation system is completed by using the collaborative filtering algorithm based on items. Given the test case set selected by the current crowd worker u, the preferences for other unselected test cases are calculated. The calculation steps are as follows: (1) \textbf{Compute the similarity between test cases:} The TGCT mechanism monitors the behavior of crowd workers and records the selection of different test cases by crowd workers. Based on the data, the similarity between different test cases is calculated. Similarity $w_{ij}$ between test case i and test case j are calculated using the following formula:
+The first five minutes of crowdsourcing testing is the cold start stage of the recommendation system. After collecting preference data of crowd worker, the recommendation system is completed by using the collaborative filtering algorithm based on items. Given the test cases selected by the current crowd worker u, the preferences for other unselected test cases are calculated. The calculation steps are as follows: (1) Compute the similarity between test cases: TGCT records the selection of different test cases by crowd workers. Based on the data, the similarity between different test cases is calculated. Similarity $w_{ij}$ between test case i and test case j are calculated using the following formula:
 \begin{equation}
 w_{ij} = \frac{|N(i) \cap N(j)|}{\sqrt{|N(i) \cup N(j)|}}
 \end{equation}
-
+N(i) denotes the group of workers who choose test case i to test, and N(j) denotes the group of workers who choose test case j to test.
 %N(i) denotes the group of workers who choose test case i to test, and N(j) denotes the group of workers who choose test case j to test. $N(i) \cap N(j)$ represents the crowd worker set that chooses both test case i and test case j. Among the crowd workers who choose test case i, the more workers choose test case j, the higher the similarity between test case i and test case j is.
 
-(2) \textbf{Predict the preference of crowd workers for other test cases:} According to the historical test case set N(u) chosen by crowd workers u, the preference degree $p_(uj)$ of crowd workers u to test case j is predicted by TGCT based on KNN. The calculation formula is as follows:
+(2) Predict the preference of crowd workers for other test cases: According to the historical test cases named N(u) chosen by crowd workers u, the preference degree $p_{uj}$ of crowd workers u to test case j is predicted by TGCT based on KNN. The calculation formula is as follows:
 \begin{equation}
-p_{uj} = \sum_{i\in N(u) \cap S(j,k)}w_{ji}r_{ui}
+p_{uj} = \sum_{i\in N(u) \cap S(j,k)}w_{ij}r_{ui}
 \end{equation}
-
+S(j,k) represents the set of k test cases closest to test case j. $r_(ui)$ represents the preference degree of crowd workers u for test case i. 
 %S(j,k) represents the set of k test cases closest to test case j. In the test case set N(u) which has been tested by crowd workers u, for each test case i, the similarity $w_(ji)$ between test case j and test case i is calculated. $r_(ui)$ represents the preference degree of crowd workers u for test case i. In the mechanism of TGCT, the value of $r_(ui)$ is between {0,1}. If crowd worker u chooses test case i, $r_(ui)$ = 1, otherwise, it is 0. 
 
-(3) \textbf{Generate test lists in Top-N mode:} N test cases with the highest preference are selected and returned to the current crowd worker.
-
-The recommended system for uncovered window transactions is the same above.
+(3) Generate test lists in Top-N mode: N test cases with the highest preference are selected and returned to the current crowd worker.%The recommended system for uncovered window transitions is the same above.
 
 \subsubsection{Collaborative Test Task Assignment}
-In Android crowdsourcing test with N participants, the TGCT mechanism defines the concept of "verified exception" for test case set T = {$t_{1}$, $t_{2}$,...}. In the crowdsourcing testing process, if a test case $t_{i}$ is tested more than the threshold S by crowd workers, its corresponding anomalies are considered to have been verified and will not appear in the recommended list. Recommendation system will guide crowd workers to verify and explore other anomalies, optimize crowdsourcing resource allocation, and improve the test coverage and efficiency.
+%In Android crowdsourcing test with N participants, 
+TGCT defines the concept of "verified exception" for test cases T = {$t_{1}$, $t_{2}$,...}. In the crowdsourcing testing process, if the test case $t_{i}$ is tested more than the threshold S times, its corresponding exceptions are considered to have been verified and will not appear in the recommended list. Recommendation system will guide crowd workers to verify and explore other exceptions.%, optimize crowdsourcing resource allocation, and improve the test coverage and efficiency.
 
 \subsection{Real-time Guide Mechanism}
 %The TGCT is integrated into the mobile phone with Android SDK. 
 Figure\ref{fig:guide} shows how the TGCT mechanism guides crowd workers to complete their testing tasks on the Android.
-%The TGCT judges the type of test task chosen by crowd workers. If it is a test case, it guides crowd workers to repeat abnormalities. If it is a transaction from uncovered windows, it guides crowd workers to reach the starting window and explore new abnormalities.
+%The TGCT judges the type of test task chosen by crowd workers. If it is a test case, it guides crowd workers to repeat abnormalities. If it is a transition from uncovered windows, it guides crowd workers to reach the starting window and explore new abnormalities.
 \begin{figure}[htbp]
 \centering
 \centerline{\includegraphics[width=\columnwidth,height=4.5cm]{fig/10.png}}
@@ -124,15 +124,15 @@ Figure\ref{fig:guide} shows how the TGCT mechanism guides crowd workers to compl
 \label{fig:guide}
 \end{figure}
 
-%Real-time guide consists of two steps. Firstly, TGCT calculate the transaction path. Secondly, TGCT 
-%First, the crowdsourcing worker is guided to reach the starting window of the target window transaction from the current window. Secondly, for the test case, the TGCT guides the crowdsourcing worker to execute the operation event that triggers the exceptions in the starting window, and for the uncovered window transaction ,TGCT mechanism prompts the crowdsourcing worker to complete the window transaction event.The following will introduce the real-time boot design of the Android application from the transaction path calculation and the real-time prompt.
+%Real-time guide consists of two steps. Firstly, TGCT calculate the transition path. Secondly, TGCT 
+%First, the crowdsourcing worker is guided to reach the starting window of the target window transition from the current window. Secondly, for the test case, the TGCT guides the crowdsourcing worker to execute the operation event that triggers the exceptions in the starting window, and for the uncovered window transition ,TGCT mechanism prompts the crowdsourcing worker to complete the window transition event.The following will introduce the real-time boot design of the Android application from the transition path calculation and the real-time prompt.
 
-\subsubsection{Transaction Path}
-There are three steps of calculating the transaction path:
-1. Remove the program's promotion window because these promotion windows only face to the new user and they are not meaningful. Start test from the MainActivity.
-2. Construct an undirected graph based on the GUI model of step 1.
-3. Calculate the shortest path through breadth-first traversal.
+\subsubsection{Transition Path}
+There are three steps of calculating the transition path:
+(1) Remove the program's promotion window because these promotion windows only face to the new user and they are not meaningful. Start test from the MainActivity.
+(2) Construct an undirected graph based on the GUI model of step 1.
+(3) Calculate the shortest path through breadth-first traversal.
 
 \subsubsection{Real-time Guidance}
-According to the location information of crowd workers, the mechanism of TGCT chooses window transaction according to different rules to realize real-time prompting and guidance. 
-%The status of crowd workers in the test path can be divided into the following categories:1. The start window but not the start window of target window transaction(edge).2. The start window of target window transaction(edge) but reached the first time.3. The end window of target window transaction(edge).
+According to the location information of crowd workers, the mechanism of TGCT chooses window transition according to different rules to realize real-time prompting and guidance. 
+%The status of crowd workers in the test path can be divided into the following categories:1. The start window but not the start window of target window transition(edge).2. The start window of target window transition(edge) but reached the first time.3. The end window of target window transition(edge).

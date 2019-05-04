@@ -1,92 +1,64 @@
-\documentclass[sigconf,review,anonymous]{acmart}
+\documentclass[sigconf]{acmart}
 
-%
-% defining the \BibTeX command - from Oren Patashnik's original BibTeX documentation.
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08emT\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
-    
-% Rights management information. 
-% This information is sent to you when you complete the rights form.
-% These commands have SAMPLE values in them; it is your responsibility as an author to replace
-% the commands and values with those provided to you when you complete the rights form.
-%
-% These commands are for a PROCEEDINGS abstract or paper.
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\setcopyright{acmcopyright}
 \copyrightyear{2018}
 \acmYear{2018}
-\setcopyright{acmlicensed}
-\acmConference[ESEC/FSE 2019]{The 27th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering}{26--30 August, 2019}{Tallinn, Estonia}
-\acmPrice{15.00}
 \acmDOI{10.1145/1122445.1122456}
-\acmISBN{978-1-4503-9999-9/18/06}
-\usepackage{makecell,multirow,diagbox}
-\usepackage{listings}
-\usepackage{subfigure} 
-\usepackage{graphicx}
-\usepackage{hyperref}
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-\lstset{frame=tb,
-     language=Java,
-     numbers=none,
-     aboveskip=3mm,
-     belowskip=3mm,
-     showstringspaces=false,
-     columns=flexible,
-     basicstyle =\ttfamily\small,
-     numberstyle=\tiny\color{gray},
-     keywordstyle=\color{blue},
-     commentstyle=\color{dkgreen},
-     stringstyle=\color{mauve},
-     breaklines=true,
-     breakatwhitespace=true,
-     tabsize=3,
-     escapeinside=``,
-}
-\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
-\renewcommand*\thelstnumber{\arabic{lstnumber}:}
-\DeclareCaptionFormat{mylst}{\hrule#1#2#3}
-\captionsetup[lstlisting]{format=mylst,labelfont=bf,singlelinecheck=off,labelsep=space}
+
+%% These commands are for a PROCEEDINGS abstract or paper.
+\acmConference[Woodstock '18]{Woodstock '18: ACM Symposium on Neural
+  Gaze Detection}{June 03--05, 2018}{Woodstock, NY}
+\acmPrice{15.00}
+\acmISBN{978-1-4503-9999-9/18/06} 
 \newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
-
-% Allow author comments to be turned off
-\newcommand{\ai}[1]
-{
-   {\noindent\color{red}\bf [#1]$_{\scriptscriptstyle\textit{ai}}$}
-}
-\newcommand{\chunrong}[1]
-{
-   {\noindent\color{grayblue}\bf [#1]$_{\scriptscriptstyle\textit{chunrong}}$}
-}
-\newcommand{\yang}[1]
-{
-   {\noindent\color{green}\bf [#1]$_{\scriptscriptstyle\textit{Yang}}$}
-}
-
-\newcommand{\includeAuthorComments}[1]
-{
-   \ifthenelse{\equal{#1}{0}}
-   {
-      \renewcommand{\ai}[1]
-      {
-         {} % empty definition
-      }
-      \renewcommand{\zhendong}[1]
-      {
-         {} % empty definition
-      }
-      \renewcommand{\yang}[1]
-      {
-         {} % empty definition
-      }
-   }{}
-}    
-    
+\usepackage{graphicx}
+\usepackage{subfigure}
 
 
 \begin{document}
 %
 % The "title" command has an optional parameter, allowing the author to define a "short title" to be used in page headers.
 \title{TGCT: Tool-Guided Mobile Application Crowdsourced Testing Mechanism}
+
+
+% \author{Ben Trovato}
+% \authornote{Both authors contributed equally to this research.}
+% \email{trovato@corporation.com}
+% \orcid{1234-5678-9012}
+% \author{G.K.M. Tobin}
+% \authornotemark[1]
+% \email{webmaster@marysville-ohio.com}
+% \affiliation{%
+%   \institution{Institute for Clarity in Documentation}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Dublin}
+%   \state{Ohio}
+%   \postcode{43017-6221}
+% }
+
+\author{Lars Th{\o}rv{\"a}ld}
+\affiliation{%
+  \institution{The Th{\o}rv{\"a}ld Group}
+  \streetaddress{1 Th{\o}rv{\"a}ld Circle}
+  \city{Hekla}
+  \country{Iceland}}
+\email{larst@affiliation.org}
+
+\author{Valerie B\'eranger}
+\affiliation{%
+  \institution{Inria Paris-Rocquencourt}
+  \city{Rocquencourt}
+  \country{France}
+}
+
+% \renewcommand{\shortauthors}{Trovato and Tobin, et al.}
+
 
 %
 % The abstract is a short summary of the work to be presented in the article.
@@ -98,18 +70,34 @@
 %
 \begin{CCSXML}
 <ccs2012>
-<concept>
-<concept_id>10011007.10011074.10011111.10011696</concept_id>
-<concept_desc>Software and its engineering~Maintaining software</concept_desc>
-<concept_significance>500</concept_significance>
-</concept>
-<concept>
-<concept_id>10002978.10003006.10003007.10003008</concept_id>
-<concept_desc>Security and privacy~Mobile platform security</concept_desc>
-<concept_significance>100</concept_significance>
-</concept>
+ <concept>
+  <concept_id>10010520.10010553.10010562</concept_id>
+  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010575.10010755</concept_id>
+  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010553.10010554</concept_id>
+  <concept_desc>Computer systems organization~Robotics</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003083.10003095</concept_id>
+  <concept_desc>Networks~Network reliability</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
 </ccs2012>
 \end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
 
 %
 % Keywords. The author(s) should pick words that accurately describe the work being
